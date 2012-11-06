@@ -1,0 +1,11 @@
+ec2:
+    access_key_id: ""
+    secret_access_key: ""
+
+bind9:
+    notify_file: "/Users/uto/also_notify.conf"
+    acl_masters_file: "/Users/uto/acl_masters_file.conf"
+    init_file: "/etc/init.d/bind9"
+    masters:
+        - admin-01
+        - admin-02
