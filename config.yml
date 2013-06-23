@@ -1,16 +1,22 @@
+debug: 1
+
 ec2:
     access_key_id: "AKIAITTVP5VOZ2UP3SCA"
     secret_access_key: "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"
+    region: 'us-west-2'
+    tag_attribute: 'Name'
+    ip_attribute: 'private_ip_address'
 
-attribute: 'name'
 
 bind9:
     notify_file: "/etc/bind/also_notify.conf"
     acl_masters_file: "/etc/bind/acl_masters_file.conf"
     named_conf_file: "/data/bind/etc/named-master.conf"
     zone_files:
-        - "/data/bind/var/myerp.priv.hosts"
-    init_file: "/etc/init.d/bind9"
+        - "/data/bind/var/zone1.priv.hosts"
+    init_cmd: "sudo /etc/init.d/bind9 reload"
+    checkconf_path: 'named-checkconf'
+    checkzone_path: 'named-checkzone'
     masters:
         - admin-01
         - admin-02

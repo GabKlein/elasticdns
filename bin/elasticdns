@@ -16,8 +16,13 @@ opt_parser = OptionParser.new do |opt|
   opt.separator  "Options"
 
   options[:config_file] = ENV['config_file']
-  opt.on("-c","--config_file elasticdns.yml","Use specific config file") do |c|
-    options[:config_file] = c
+  opt.on("-c","--config_file=elasticdns.yml","Use specific config file") do |config_file|
+    options[:config_file] = config_file
+  end
+
+  options[:debug] = ENV['debug']
+  opt.on("-d","--debug=1","Use to debug") do |debug|
+    options[:debug] = debug
   end
 
   options[:ec2_access_key_id] = ENV['ec2_access_key_id']
@@ -30,9 +35,55 @@ opt_parser = OptionParser.new do |opt|
     options[:ec2_secret_access_key] = ec2_secret_access_key
   end
 
-  options[:ec2_attribute] = ENV['ec2_attribute'] || "name"
-  opt.on("-a","--attribute=name","Use to specifiy which tags attribute read to detect master servers (default: name)") do |ec2_attribute|
-    options[:ec2_attribute] = ec2_attribute
+  options[:ec2_tag_attribute] = ENV['ec2_tag_attribute'] || "Name"
+  opt.on("--ec2_tag_attribute","--ec2_tag_attribute=Name","Use to specifiy which tags attribute read to detect master servers (default: Name)") do |ec2_tag_attribute|
+    options[:ec2_tag_attribute] = ec2_tag_attribute
+  end
+
+  options[:ec2_ip_attribute] = ENV['ec2_ip_attribute'] || "private_ip_address"
+  opt.on("--ec2_ip_attribute","--ec2_ip_attribute=Name","Use to specifiy which ip attribute read public_ip_address or private_ip_address (default: private_ip_address)") do |ec2_ip_attribute|
+    options[:ec2_ip_attribute] = ec2_ip_attribute
+  end
+
+
+  options[:bind9_notify_file] = ENV['bind9_notify_file']
+  opt.on("--bind9_notify_file","--bind9_notify_file=/etc/bind/also_notify.conf","") do |bind9_notify_file|
+    options[:bind9_notify_file] = bind9_notify_file
+  end
+
+  options[:bind9_acl_masters_file] = ENV['bind9_acl_masters_file']
+  opt.on("--bind9_acl_masters_file","--bind9_acl_masters_file=/etc/bind/acl_masters_file.conf","") do |bind9_acl_masters_file|
+    options[:bind9_acl_masters_file] = bind9_acl_masters_file
+  end
+
+  options[:bind9_named_conf_file] = ENV['bind9_named_conf_file']
+  opt.on("--bind9_named_conf_file","--bind9_named_conf_file=/data/bind/etc/named-master.conf","") do |bind9_named_conf_file|
+    options[:bind9_named_conf_file] = bind9_named_conf_file
+  end
+
+  options[:bind9_zone_files] = ENV['bind9_zone_files']
+  opt.on("--bind9_zone_files","--bind9_zone_files=[/data/bind/var/zone1.priv.hosts,/data/bind/var/zone2.priv.hosts]","") do |bind9_zone_files|
+    options[:bind9_zone_files] = bind9_zone_files
+  end
+
+  options[:bind9_checkconf_path] = ENV['bind9_checkconf_path']
+  opt.on("--bind9_checkconf_path","--bind9_checkconf_path=named-checkconf","") do |bind9_checkconf_path|
+    options[:bind9_checkconf_path] = bind9_checkconf_path
+  end
+
+  options[:bind9_checkzone_path] = ENV['bind9_checkzone_path']
+  opt.on("--bind9_checkzone_path","--bind9_checkzone_path=named-checkzone","") do |bind9_checkzone_path|
+    options[:bind9_checkzone_path] = bind9_checkzone_path
+  end
+
+  options[:bind9_init_cmd] = ENV['bind9_init_cmd']
+  opt.on("--bind9_init_file","--bind9_init_file='sudo /etc/init.d/bind9 reload'","") do |bind9_init_cmd|
+    options[:bind9_init_cmd] = bind9_init_cmd
+  end
+
+  options[:bind9_masters] = ENV['bind9_masters']
+  opt.on("--bind9_masters","--bind9_masters=[master1,maser2]","") do |bind9_masters|
+    options[:bind9_masters] = bind9_masters
   end
 
   options[:test] = ENV['test']
@@ -40,14 +91,9 @@ opt_parser = OptionParser.new do |opt|
     options[:test] = test
   end
 
-  options[:slave] = ENV['slave']
-  opt.on("-s","--slave ","Use if host is slave") do |slave|
+  options[:slave] = ENV['slave'] || false
+  opt.on("-s","--slave=false","Use if host is slave (default: false)") do |slave|
     options[:slave] = slave
-  end
-
-  options[:master] = ENV['master']
-  opt.on("-m","--master=[]","Use to define master servers") do |master|
-    options[:master] = master
   end
 
   opt.on("-h","--help","help")
@@ -55,8 +101,4 @@ end
 
 opt_parser.parse!
 
-Elasticdns.new(options).run
-
-else
-	puts opt_parser
-end
+Elasticdns::Generator.new(options).run
