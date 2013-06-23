@@ -1,10 +1,15 @@
 ec2:
-    access_key_id: ""
-    secret_access_key: ""
+    access_key_id: "AKIAITTVP5VOZ2UP3SCA"
+    secret_access_key: "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"
+
+attribute: 'name'
 
 bind9:
-    notify_file: "/Users/uto/also_notify.conf"
-    acl_masters_file: "/Users/uto/acl_masters_file.conf"
+    notify_file: "/etc/bind/also_notify.conf"
+    acl_masters_file: "/etc/bind/acl_masters_file.conf"
+    named_conf_file: "/data/bind/etc/named-master.conf"
+    zone_files:
+        - "/data/bind/var/myerp.priv.hosts"
     init_file: "/etc/init.d/bind9"
     masters:
         - admin-01

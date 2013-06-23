@@ -1,17 +1,8 @@
-require 'yaml'
-require 'aws-sdk'
-require 'tempfile'
-require 'fileutils'
-require 'digest/md5'
-import 'lib/ec2_dns.rb'
-
-cnf = YAML::load(File.open('config.yml'))
+require './lib/ec2_dns.rb'
 
 task :update_hosts_file do
-  
-  orig_file = '/Users/uto/hosts'
+  orig_file = '/etc/hosts'
   temp_file = Tempfile.new('hosts')
-
   begin
     ec2 = ec2init
     File.open(orig_file, 'r') do |file|
@@ -37,7 +28,7 @@ task :update_hosts_file do
 end
 
 task :update_notify_file do  
-  orig_file = cnf['bind9']['notify_file']
+  orig_file = @cnf['bind9']['notify_file']
   temp_file = Tempfile.new('also-notify')
   prefix = "also-notify"
   begin
@@ -51,6 +42,7 @@ task :update_notify_file do
     if ips[0]
       unless md5chk(orig_file, md5(ips.to_s))
         update = updatefile(ips, md5(ips.to_s), temp_file, orig_file, prefix)
+        bind_reload
         puts 'update with: ' + update
       else
         puts 'nothing changed: ' + md5(ips.to_s)
@@ -65,16 +57,16 @@ task :update_notify_file do
 end
 
 task :update_acl_masters_file do  
-  orig_file = cnf['bind9']['acl_masters_file']
+  orig_file = @cnf['bind9']['acl_masters_file']
   temp_file = Tempfile.new('acl_masters_file')
   prefix = "acl 'masters'"
   begin
     ec2 = ec2init
     ips = []
     ec2.instances.each do |i|
-      meta_name = i.tags[:meta_name]
+      meta_name = i.tags[@cnf['ec2']['meta_tag_name']]
       if i.status == :running
-        cnf['bind9']['masters'].each do |master|
+        @cnf['bind9']['masters'].each do |master|
           if meta_name == master
             ips << i.private_ip_address
           end
@@ -84,6 +76,7 @@ task :update_acl_masters_file do
     if ips[0]
       unless md5chk(orig_file, md5(ips.to_s))
         update = updatefile(ips, md5(ips.to_s), temp_file, orig_file, prefix)
+        bind_reload
         puts 'update with: ' + update
       else
         puts 'nothing changed: ' + md5(ips.to_s)

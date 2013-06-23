@@ -1,0 +1,62 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'optparse'
+require 'yaml'
+
+require_relative '../lib/elasticdns'
+
+file = __FILE__
+
+options = {}
+
+opt_parser = OptionParser.new do |opt|
+  opt.banner = "Usage: #{file} [OPTIONS]"
+  opt.separator  ""
+  opt.separator  "Options"
+
+  options[:config_file] = ENV['config_file']
+  opt.on("-c","--config_file elasticdns.yml","Use specific config file") do |c|
+    options[:config_file] = c
+  end
+
+  options[:ec2_access_key_id] = ENV['ec2_access_key_id']
+  opt.on("--ec2_access_key_id","--ec2_access_key_id=ec2_key_id","Use specific ec2_key_id") do |ec2_access_key_id|
+    options[:ec2_access_key_id] = ec2_access_key_id
+  end
+
+  options[:ec2_secret_access_key] = ENV['ec2_secret_access_key']
+  opt.on("--ec2_secret_access_key","--ec2_secret_access_key=secret_access_key","Use specific secret_access_key") do |ec2_secret_access_key|
+    options[:ec2_secret_access_key] = ec2_secret_access_key
+  end
+
+  options[:ec2_attribute] = ENV['ec2_attribute'] || "name"
+  opt.on("-a","--attribute=name","Use to specifiy which tags attribute read to detect master servers (default: name)") do |ec2_attribute|
+    options[:ec2_attribute] = ec2_attribute
+  end
+
+  options[:test] = ENV['test']
+  opt.on("-t","--test","Use to test dns propagation") do |test|
+    options[:test] = test
+  end
+
+  options[:slave] = ENV['slave']
+  opt.on("-s","--slave ","Use if host is slave") do |slave|
+    options[:slave] = slave
+  end
+
+  options[:master] = ENV['master']
+  opt.on("-m","--master=[]","Use to define master servers") do |master|
+    options[:master] = master
+  end
+
+  opt.on("-h","--help","help")
+end
+
+opt_parser.parse!
+
+Elasticdns.new(options).run
+
+else
+	puts opt_parser
+end
