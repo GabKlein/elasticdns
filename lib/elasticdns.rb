@@ -58,6 +58,8 @@ module Elasticdns
       temp_file.write(line)
       temp_file.rewind
       FileUtils.mv(temp_file.path, orig_file)
+      FileUtils.chown(@config[:bind9_user][0] || "bind", @config[:bind9_user][1] || "bind" , orig_file)
+      FileUtils.chmod(0644, orig_file)
       return line
     end
 
@@ -73,8 +75,9 @@ module Elasticdns
     end
 
     def bind_checkzone
-      @config[:bind9_zone_files].each do |zone|
-        cmd = "#{@config[:bind9_checkzone_path]} #{zone}"
+      @config[:bind9_zones].each do |zone|
+        zone_name, zone_file = zone.split(':')
+        cmd = "#{@config[:bind9_checkzone_path]} #{zone_name} #{zone_file}"
         puts cmd if @config[:debug]
         unless system(cmd)
           puts "Bind checkzone failed"
@@ -87,7 +90,9 @@ module Elasticdns
 
     def bind_init_cmd
       if bind_checkconf && bind_checkzone
-        system("#{@config[:bind9_init_cmd]}")
+        cmd = "#{@config[:bind9_init_cmd]}"
+        puts cmd if @config[:debug]
+        system(cmd)
       end
     end
 

@@ -11,9 +11,11 @@ ec2:
 bind9:
     notify_file: "/etc/bind/also_notify.conf"
     acl_masters_file: "/etc/bind/acl_masters_file.conf"
-    named_conf_file: "/data/bind/etc/named-master.conf"
-    zone_files:
-        - "/data/bind/var/zone1.priv.hosts"
+    named_conf_file: "/etc/bind/named.conf"
+    user: "bind,bind"
+    zones:
+        - "zone1.priv:/data/bind/var/zone1.priv.hosts"
+        - "zone2.priv:/data/bind/var/zone2.priv.hosts"
     init_cmd: "sudo /etc/init.d/bind9 reload"
     checkconf_path: 'named-checkconf'
     checkzone_path: 'named-checkzone'

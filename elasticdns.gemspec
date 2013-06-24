@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'elasticdns'
-  s.version     = '0.0.4'
+  s.version     = '0.0.5'
   s.date        = '2013-06-23'
   s.executables = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.summary     = "A simple bind9 configurator"

@@ -61,9 +61,9 @@ opt_parser = OptionParser.new do |opt|
     options[:bind9_named_conf_file] = bind9_named_conf_file
   end
 
-  options[:bind9_zone_files] = ENV['bind9_zone_files']
-  opt.on("--bind9_zone_files","--bind9_zone_files=[/data/bind/var/zone1.priv.hosts,/data/bind/var/zone2.priv.hosts]","") do |bind9_zone_files|
-    options[:bind9_zone_files] = bind9_zone_files
+  options[:bind9_zones] = ENV['bind9_zones']
+  opt.on("--bind9_zones","--bind9_zones=[zone1.priv:/data/bind/var/zone1.priv.hosts,zone2.priv:/data/bind/var/zone2.priv.hosts]","") do |bind9_zones|
+    options[:bind9_zones] = bind9_zones
   end
 
   options[:bind9_checkconf_path] = ENV['bind9_checkconf_path']
@@ -84,6 +84,11 @@ opt_parser = OptionParser.new do |opt|
   options[:bind9_masters] = ENV['bind9_masters']
   opt.on("--bind9_masters","--bind9_masters=[master1,maser2]","") do |bind9_masters|
     options[:bind9_masters] = bind9_masters
+  end
+
+  options[:bind9_user] = ENV['bind9_user']
+  opt.on("--bind9_user","--bind9_user=user,group","") do |bind9_user|
+    options[:bind9_user] = bind9_user
   end
 
   options[:test] = ENV['test']
