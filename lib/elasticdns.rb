@@ -62,18 +62,32 @@ module Elasticdns
     end
 
     def bind_checkconf
-      `#{@config[:bind9_checkconf_path]} #{@config[:bind9_named_conf_file]}`
+      cmd = "#{@config[:bind9_checkconf_path]} #{@config[:bind9_named_conf_file]}"
+      puts cmd if @config[:debug]
+      unless system(cmd)
+        puts "Bind checkconf failed"
+        return false
+      else
+        return true
+      end
     end
 
     def bind_checkzone
       @config[:bind9_zone_files].each do |zone|
-        `#{@config[:bind9_checkzone_path]} #{zone}`
+        cmd = "#{@config[:bind9_checkzone_path]} #{zone}"
+        puts cmd if @config[:debug]
+        unless system(cmd)
+          puts "Bind checkzone failed"
+          return false
+        else
+          return true
+        end
       end
     end
 
     def bind_init_cmd
       if bind_checkconf && bind_checkzone
-        `#{@config[:bind9_init_cmd]}`
+        system("#{@config[:bind9_init_cmd]}")
       end
     end
 
